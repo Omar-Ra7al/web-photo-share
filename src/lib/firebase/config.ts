@@ -1,17 +1,18 @@
-import { initializeApp } from "firebase/app";
+import { getApps, initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCXnybMlNHJnTi91Kb-pNR0V6LawQQZi4U",
-  authDomain: "web-photo-share.firebaseapp.com",
-  projectId: "web-photo-share",
-  storageBucket: "web-photo-share.firebasestorage.app",
-  messagingSenderId: "830998752086",
-  appId: "1:830998752086:web:096dca50e00cc1ceb884f7",
-  measurementId: "G-C44HNQJBPW",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  // measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID!, // optional, only if you use analytics
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
+export default app;
 // import { getAnalytics } from "firebase/analytics";
 // const analytics = getAnalytics(app);

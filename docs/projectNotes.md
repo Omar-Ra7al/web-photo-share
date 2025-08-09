@@ -2,6 +2,8 @@
 Here i will show each step in this project it will be as a learning tutorial
 ```
 
+---
+
 # Tech stack
 
 ```mermaid
@@ -35,9 +37,11 @@ stateDiagram
 
 <br/>
 
+---
+
 # File strucure
 
-### i used ((src)) dir when i initialize the project with next js to make the project more orgnaized and scalabe
+### ((Src)) dir that will make the project more orgnaized and scalabe
 
 - Lib dir including the things is related to libraries
 
@@ -45,5 +49,89 @@ stateDiagram
 
   - it will have also shared dir it will include the all reusable and shared components
 
-- Changelog file it will be use for tracing the changes
-  that will made in each commit
+- Docs dir it will include the all docs related files like changelog , git workflow , and this file
+
+---
+
+# Project structure
+
+## 1- Added the config for fire base with this important line
+
+```js
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+(((Explanation)))
+
+getApps() returns an array of initialized Firebase apps.
+
+!getApps().length checks if no Firebase app has been initialized yet (length === 0).
+
+If no app exists, initialize one with initializeApp(firebaseConfig).
+
+Otherwise, reuse the existing app (getApps()[0]).
+
+Why?
+
+Next.js does SSR and can re-run code multiple times.
+
+Initializing Firebase multiple times causes errors.
+
+So this check prevents multiple Firebase app instances and uses the existing one instead.
+```
+
+## 2- Added the .env file to store the firebase config
+
+### why and how to use it ?
+
+```
+1. What is .env?
+Files that store environment variables — settings or secrets like API keys — outside your code.
+
+2. Common .env files in Next.js
+File Name	When It’s Used	Purpose	Shared in Git?
+
+.env
+Used as the default for all environments (dev, prod, test). Usually shared in Git.
+
+.env.local
+Used only on your local machine. For secrets or overrides during development.
+Not shared in Git (it’s in .gitignore).
+
+.env.development
+Loaded only when running in development mode.
+
+.env.production
+Loaded only during production build/deployment.
+
+if u want to share it with git hub u can meke env.example file and push it u can set dummy data or empty value in it.
+
+3. Variable naming rules
+Variable Name Start	Where Available	Example Use
+No prefix	Server-side only	Database password, secret keys
+NEXT_PUBLIC_	Both server and browser	Firebase API key, public URLs
+
+4. How to use
+Put your variables in .env.local or others.
+
+Access with process.env.VAR_NAME in your code.
+
+Restart your app after changing env files.
+
+Use NEXT_PUBLIC_ prefix if you want to expose the variable to the browser.
+Other wise it will be hidden to the borwser and it can be only accessed from the server.
+
+5. Example .env.local
+NEXT_PUBLIC_FIREBASE_API_KEY=your_key_here
+```
+
+## 3- Add authentication to the project
+
+```
+- We will slice the logic of auth into functions in the lib dir itno firebase dir
+- We will use after the fucntions we did in different places
+
+- We need to global the auth status we will use zustand for that
+and we need to trace the changes of each status of user we will provide a provider to our application and then we will have the ability to check the status of the user and change it in our state managemnt store
+```
+- I startedby adding google auth to the project
+- and then i will use email and password auth
