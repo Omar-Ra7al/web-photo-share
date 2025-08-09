@@ -11,6 +11,8 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import AuthProvider from "@/components/providers/authProvider";
 
+import { Toaster } from "@/components/ui/sonner";
+
 // Importing fonts
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
@@ -42,9 +44,10 @@ export default async function LocaleLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body>
+      <body className="dark">
         <AuthProvider>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>

@@ -133,5 +133,77 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your_key_here
 - We need to global the auth status we will use zustand for that
 and we need to trace the changes of each status of user we will provide a provider to our application and then we will have the ability to check the status of the user and change it in our state managemnt store
 ```
+
+### Google auth
+
 - I startedby adding google auth to the project
 - and then i will use email and password auth
+
+### Email and password auth
+
+Added functions to our auth file
+used zod and react hook form to validate the form in sign up form
+
+####
+
+Step-by-Step Execution
+
+##### Schema definition
+
+```js
+const signUpSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+```
+
+You define rules for each field.
+This is the single source of truth for your form validation.
+
+##### Type inference
+
+```js
+type SignUpFormData = z.infer<typeof signUpSchema>;
+```
+
+This means you don’t have to manually write the TypeScript interface.
+If you change the schema, types update automatically.
+
+##### Form setup
+
+```js
+useForm <
+  SignUpFormData >
+  {
+    resolver: zodResolver(signUpSchema),
+  };
+```
+
+useForm manages the state.
+zodResolver makes react-hook-form validate using Zod.
+Registering inputs
+{...register("email")}
+This connects the input to the form system.
+react-hook-form will track the value automatically.
+
+###### Handling submit
+
+```js
+handleSubmit(onSubmit);
+```
+
+Runs Zod validation.
+
+If valid → calls onSubmit(data).
+
+If invalid → sets errors.
+
+###### Displaying errors
+
+```js
+{
+  errors.email && <p>{errors.email.message}</p>;
+}
+```
+
+Shows error messages from Zod.

@@ -1,11 +1,16 @@
 "use client";
 import { signInWithGoogle } from "@/lib/firebase/auth";
+import { Button } from "@/components/ui/button";
 
-const SignInWithGoogle = () => {
+const SignInWithGoogle = ({ className }: { className?: string }) => {
   return (
-    <button className="btn btn-primary bg-cyan-800" onClick={signInWithGoogle}>
-      <span>Sign in with Google</span>
-    </button>
+    <Button
+      className={className}
+      variant="secondary"
+      onClick={signInWithGoogle}
+    >
+      Login with Google
+    </Button>
   );
 };
 

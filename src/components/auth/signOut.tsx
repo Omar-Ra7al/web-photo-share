@@ -1,9 +1,10 @@
 "use client";
 import { signOutUser } from "@/lib/firebase/auth";
+import { Button } from "@/components/ui/button";
 export default function LogOutButton() {
   return (
-    <button className="btn btn-primary bg-red-800" onClick={signOutUser}>
+    <Button variant="destructive" onClick={signOutUser}>
       <span>Log out</span>
-    </button>
+    </Button>
   );
 }
