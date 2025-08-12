@@ -17,52 +17,67 @@ import { toast } from "sonner";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signUpUser } from "@/lib/firebase/auth";
-
+import { updateUserProfile } from "@/lib/firebase/auth";
+import { updateUserDocProfile } from "@/lib/firebase/fireStore";
+import { useAuthStore } from "@/lib/store/authStore";
 // Zod schema
-const signUpSchema = z
-  .object({
-    firstName: z.string().min(2, "First name is too short"),
-    lastName: z.string().min(2, "Last name is too short"),
-    email: z.string().email("Invalid email"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
+const updateProfileSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  // email: z
+  //   .string()
+  //   .optional()
+  //   .refine((val) => !val || z.string().email().safeParse(val).success, {
+  //     message: "Invalid email",
+  //   }),
+  // password: z
+  //   .string()
+  //   .optional()
+  //   .refine((val) => !val || val.length >= 6, {
+  //     message: "Password must be at least 6 characters",
+  //   }),
+});
 
 // Infer TypeScript types from schema
-type SignUpFormValues = z.infer<typeof signUpSchema>;
+type LogInFormValues = z.infer<typeof updateProfileSchema>;
 
-export default function SignUpForm() {
+export default function UpdateProfile() {
   const router = useRouter();
+
+  const getUser = useAuthStore((state) => state.getUser);
+  const user = useAuthStore((state) => state.user);
   // Initialize react-hook-form with zodResolver
   const {
     register, // Connect inputs to form
     handleSubmit, // Form submit handler
     reset, // Reset form fields
     formState: { errors, isSubmitting }, // Validation & state & errors
-  } = useForm<SignUpFormValues>({
+  } = useForm<LogInFormValues>({
     //Types
-    resolver: zodResolver(signUpSchema), // Give useForm the resolver from zod
+    resolver: zodResolver(updateProfileSchema), // Give useForm the resolver from zod
   });
 
-  const onSubmit = async (data: SignUpFormValues) => {
+  const onSubmit = async (data: LogInFormValues) => {
     try {
-      await signUpUser(
-        data.email,
-        data.password,
-        data.firstName,
-        data.lastName
-      );
-      toast.success("Account created successfully!");
+      const userUpdatedData = {
+        displayName: `${data.firstName || user?.firstName} ${
+          data.lastName || user?.lastName
+        }`,
+      };
+      updateUserDocProfile(data);
+
+      updateUserProfile(userUpdatedData);
+
+      // Refresh user data in store to apply changes immediately
+      getUser();
+
+      toast.success("Updated successfully!");
+
       setTimeout(() => {
-        router.push("/login");
+        router.push("/");
       }, 1500);
     } catch (error) {
-      toast.error("Sign Up failed. Please check your credentials.", {
+      toast.error("Failed to update.", {
         className: "!bg-red-500 text-white",
       });
       if (error instanceof Error) {
@@ -75,9 +90,9 @@ export default function SignUpForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm  h-[290px]">
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
+        <CardTitle>Update Profile</CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -107,7 +122,8 @@ export default function SignUpForm() {
             </div>
           </div>
 
-          {/* Email */}
+          {/*
+          // Email and Password
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" {...register("email")} />
@@ -116,7 +132,6 @@ export default function SignUpForm() {
             )}
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" {...register("password")} />
@@ -124,32 +139,18 @@ export default function SignUpForm() {
               <p className="text-red-500 text-sm">{errors.password.message}</p>
             )}
           </div>
-
-          {/* Confirm Password */}
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              {...register("confirmPassword")}
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
+          */}
 
           {/* Submit */}
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Creating Account..." : "Sign Up"}
+            {isSubmitting ? "Updating Profile" : "Update Profile"}
           </Button>
         </form>
       </CardContent>
 
       <CardFooter>
         <Button variant="link" className="w-full">
-          <Link href="/login">Already have an account? Log in</Link>
+          <Link href="/signup">Don&apos;t have an account?</Link>
         </Button>
       </CardFooter>
     </Card>

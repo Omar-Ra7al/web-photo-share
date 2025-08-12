@@ -48,7 +48,7 @@ export default function LogInForm() {
       toast.success("Logged in successfully!");
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 1500);
     } catch (error) {
       toast.error("Login failed. Please check your credentials.", {
         className: "!bg-red-500 text-white",

@@ -7,7 +7,6 @@ Here i will show each step in this project it will be as a learning tutorial
 # Tech stack
 
 ```mermaid
-
 stateDiagram
     [*] --> Next.Js
     Next.Js
@@ -207,3 +206,113 @@ If invalid → sets errors.
 ```
 
 Shows error messages from Zod.
+
+## 4- Creating Types dir
+
+### Why and how to use it
+
+```
+Types is so important and useful but why to split it into another folder ?
+
+1. It is a good practice to keep your code clean and organized.
+2. To reuse the same types in different parts of your codebase.
+```
+
+#### Dir name and file name
+
+```
+types
+
+types.d.ts
+
+Why ((((((.d.ts))))))
+
+They’re used for type definitions only.
+The TypeScript compiler doesn’t output anything for them in JavaScript — they exist purely for development time.
+((((Also it will be global types for our project so we can use it in different places in our project wihtout importing it.))))
+
+// This type will be available everywhere in the project without importing.
+declare interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+if u not adding decalre it will still working but if u import any thing in the d.ts file it will stop dynamic declare.
+we use declare at first to avoid this problem.
+
+// global.d.ts
+import { User } from "./models"; // 👈 Adding just 1 import breaks auto-global
+
+interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+const res: ApiResponse<string> = { data: "Hello" }; // ❌ Error: Cannot find name 'ApiResponse'
+
+```
+
+#### Best Use Cases — Interface vs Type
+
+##### 1. Use interface when:
+
+- You need unions, intersections, or aliases.
+
+- You’re defining primitives or function signatures.
+
+- You don’t need merging/extension.
+
+- Example: union of strings, complex combinations.
+
+```ts
+interface User {
+  id: string;
+  name: string;
+}
+
+interface Admin extends User {
+  role: string;
+}
+```
+
+`Why not type here?
+Because interface is better for extending and merging, which is common for objects.`
+
+##### 2. Use type when:
+
+- You need unions, intersections, or aliases.
+
+- You’re defining primitives or function signatures.
+
+- You don’t need merging/extension.
+
+- Example: union of strings, complex combinations.
+
+```ts
+type Theme = "light" | "dark"; // union
+type ID = string | number; // alias
+type ApiResponse<T> = { data: T; error?: string }; // generic type
+```
+
+`Why not interface here?
+Because interface can’t do primitive unions or aliases — only object shapes.`
+
+**Interface vs Type — Quick Comparison**
+
+| Feature / Use Case                | `interface` ✅   | `type` ✅                  |
+| --------------------------------- | ---------------- | -------------------------- | --- |
+| Describe **object shapes**        | ✔️               | ✔️                         |
+| **Extendable** (via `extends`)    | ✔️               | ✔️ (with intersection `&`) |
+| **Declaration merging**           | ✔️               | ❌                         |
+| **Unions** (`"a"                  | "b"`)            | ❌                         | ✔️  |
+| **Primitive aliases** (`string`)  | ❌               | ✔️                         |
+| **Function signatures**           | ✔️ (less common) | ✔️                         |
+| **Recommended for React props**   | ✔️               | ✔️ (but less common)       |
+| Best for **complex combinations** | ❌               | ✔️                         |
+
+**Rule of Thumb**
+
+- **Objects? → `interface`**
+- **Anything else (unions, primitives, combos)? → `type`**
+
+## 5- 
