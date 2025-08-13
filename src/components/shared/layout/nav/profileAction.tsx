@@ -1,7 +1,7 @@
 "use client";
 import { useAuthStore } from "@/lib/store/authStore";
 import UserProfile from "./userProfile";
-import LoginSingUpBtns from "../../../auth/buttons/loginSingUpBtns";
+import LoginSingUpBtns from "../../../auth/buttons/signInSingUpBtns";
 
 const AuthActionButton = () => {
   const user = useAuthStore((state) => state.user);

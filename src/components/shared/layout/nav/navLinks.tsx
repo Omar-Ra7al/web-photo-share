@@ -12,7 +12,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import LoginSingUpBtns from "@/components/auth/buttons/loginSingUpBtns";
+import LoginSingUpBtns from "@/components/auth/buttons/signInSingUpBtns";
 import AnimatedThemeTogglerDemo from "../themeSwitcher";
 import LocaleSwitcher from "../localeSwitcher";
 import { useState } from "react";
