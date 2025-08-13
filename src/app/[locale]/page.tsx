@@ -1,8 +1,17 @@
 import Hero from "@/components/pages/home/hero";
+import {
+  ScrollVelocityContainer,
+  ScrollVelocityRow,
+} from "@/components/magicui/scroll-based-velocity";
+import Section from "@/components/shared/style/section";
+import { Gallery } from "@/components/pages/home/gallery";
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-15">
       <Hero />
+      <Gallery />
+      <div className="h-[1000px]"></div>
     </div>
   );
 }

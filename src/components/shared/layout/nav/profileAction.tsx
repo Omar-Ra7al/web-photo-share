@@ -1,7 +1,8 @@
 "use client";
 import { useAuthStore } from "@/lib/store/authStore";
 import UserProfile from "./userProfile";
-import LoginSingUpBtns from "../../../auth/buttons/signInSingUpBtns";
+import LoginSingUpBtns from "@/components/auth/buttons/signInSingUpBtns";
+import { motion } from "motion/react";
 
 const AuthActionButton = () => {
   const user = useAuthStore((state) => state.user);
@@ -10,7 +11,11 @@ const AuthActionButton = () => {
   if (loading) {
     return <div className="h-full w-[60px]"></div>;
   }
-  return user ? <UserProfile /> : <LoginSingUpBtns />;
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {user ? <UserProfile /> : <LoginSingUpBtns />}
+    </motion.div>
+  );
 };
 
 export default AuthActionButton;
