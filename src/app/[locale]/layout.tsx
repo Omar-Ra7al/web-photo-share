@@ -9,9 +9,10 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import AuthProvider from "@/components/providers/authProvider";
+import AuthProvider from "@/providers/authProvider";
 
 import { Toaster } from "@/components/ui/sonner";
+import Nav from "@/components/shared/layout/nav/nav";
 
 // Importing fonts
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -42,13 +43,22 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+      className={`${geistSans.variable} ${geistMono.variable} dark`}
     >
-      <body className="dark">
-        <AuthProvider>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
-          <Toaster />
-        </AuthProvider>
+      <body>
+        <NextIntlClientProvider>
+          <Nav />
+          <AuthProvider>
+            <main
+              className="pt-[100px] overflow-hidden flex flex-col justify-center dark:!text-cyan-50 !text-cyan-950 gap-y-[120px]"
+              style={{ minHeight: "calc(100vh - 100px)" }}
+            >
+              {children}
+              <Toaster />
+            </main>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

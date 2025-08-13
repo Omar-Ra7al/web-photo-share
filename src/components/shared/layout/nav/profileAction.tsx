@@ -1,16 +1,16 @@
 "use client";
 import { useAuthStore } from "@/lib/store/authStore";
-import SignInWithGoogle from "@/components/auth/signInWithGoogle";
-import LogOutButton from "@/components/auth/signOut";
+import UserProfile from "./userProfile";
+import LoginSingUpBtns from "../../../auth/buttons/loginSingUpBtns";
 
 const AuthActionButton = () => {
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="h-full w-[60px]"></div>;
   }
-  return user ? <LogOutButton /> : <SignInWithGoogle />;
+  return user ? <UserProfile /> : <LoginSingUpBtns />;
 };
 
 export default AuthActionButton;

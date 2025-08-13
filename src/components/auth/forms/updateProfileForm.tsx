@@ -1,14 +1,7 @@
 "use client";
-import { Link } from "@/i18n/navigation";
 import { useRouter } from "next/navigation";
-
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { motion } from "motion/react";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,6 +13,9 @@ import { useForm } from "react-hook-form";
 import { updateUserProfile } from "@/lib/firebase/auth";
 import { updateUserDocProfile } from "@/lib/firebase/fireStore";
 import { useAuthStore } from "@/lib/store/authStore";
+import MagicCardTheme from "../../shared/style/magicCardTheme";
+import Section from "@/components/shared/style/section";
+import Heading from "@/components/shared/style/heading";
 // Zod schema
 const updateProfileSchema = z.object({
   firstName: z.string().optional(),
@@ -90,39 +86,46 @@ export default function UpdateProfile() {
   };
 
   return (
-    <Card className="w-full max-w-sm  h-[290px]">
-      <CardHeader>
-        <CardTitle>Update Profile</CardTitle>
-      </CardHeader>
+    <Section type="outer" className="flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0.5, y: "-100%" }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-center items-center w-full h-full"
+      >
+        <MagicCardTheme className="w-full max-w-sm rounded-2xl p-6">
+          <Heading size="sm" className="mb-6">
+            Update Profile
+          </Heading>
 
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* First Name and Last Name */}
-          <div className="flex items-center justify-between gap-2">
-            {/* First Name */}
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" {...register("firstName")} />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm">
-                  {errors.firstName.message}
-                </p>
-              )}
-            </div>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* First Name and Last Name */}
+              <div className="flex items-center justify-between gap-2">
+                {/* First Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" {...register("firstName")} />
+                  {errors.firstName && (
+                    <p className="text-red-500 text-sm">
+                      {errors.firstName.message}
+                    </p>
+                  )}
+                </div>
 
-            {/* Last Name */}
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" {...register("lastName")} />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </div>
-          </div>
+                {/* Last Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" {...register("lastName")} />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-sm">
+                      {errors.lastName.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-          {/*
+              {/*
           // Email and Password
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -141,18 +144,14 @@ export default function UpdateProfile() {
           </div>
           */}
 
-          {/* Submit */}
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Updating Profile" : "Update Profile"}
-          </Button>
-        </form>
-      </CardContent>
-
-      <CardFooter>
-        <Button variant="link" className="w-full">
-          <Link href="/signup">Don&apos;t have an account?</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+              {/* Submit */}
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Updating Profile" : "Update Profile"}
+              </Button>
+            </form>
+          </CardContent>
+        </MagicCardTheme>
+      </motion.div>
+    </Section>
   );
 }

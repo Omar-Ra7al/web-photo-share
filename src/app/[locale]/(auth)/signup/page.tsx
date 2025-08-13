@@ -1,10 +1,10 @@
-import SignUpForm from "@/components/auth/signUpForm";
+import SignUpForm from "@/components/auth/forms/signUpForm";
 
 const page = () => {
   return (
-    <div>
+    <>
       <SignUpForm />
-    </div>
+    </>
   );
 };
 export default page;
