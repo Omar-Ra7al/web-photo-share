@@ -54,34 +54,18 @@ export default function UpdateProfile() {
   });
 
   const onSubmit = async (data: LogInFormValues) => {
-    try {
-      const userUpdatedData = {
-        displayName: `${data.firstName || user?.firstName} ${
-          data.lastName || user?.lastName
-        }`,
-      };
-      updateUserDocProfile(data);
+    const userUpdatedData = {
+      displayName: `${data.firstName || user?.firstName} ${
+        data.lastName || user?.lastName
+      }`,
+    };
 
-      updateUserProfile(userUpdatedData);
+    await updateUserDocProfile(data);
 
-      // Refresh user data in store to apply changes immediately
-      getUser();
+    await updateUserProfile(userUpdatedData);
+    // Refresh user data in store to apply changes immediately
+    getUser();
 
-      toast.success("Updated successfully!");
-
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-    } catch (error) {
-      toast.error("Failed to update.", {
-        className: "!bg-red-500 text-white",
-      });
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
     reset();
   };
 

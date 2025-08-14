@@ -6,7 +6,6 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,22 +40,7 @@ export default function LogInForm() {
   });
 
   const onSubmit = async (data: LogInFormValues) => {
-    try {
-      await signInUser(data.email, data.password);
-      toast.success("Logged in successfully!");
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-    } catch (error) {
-      toast.error("Login failed. Please check your credentials.", {
-        className: "!bg-red-500 text-white",
-      });
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
+    await signInUser(data.email, data.password, router);
     reset();
   };
 
