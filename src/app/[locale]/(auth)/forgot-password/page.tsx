@@ -1,8 +1,7 @@
 "use client";
-import { Link } from "@/i18n/navigation";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { CardContent, CardFooter } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -10,24 +9,21 @@ import { Button } from "@/components/ui/button";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signInUser } from "@/lib/firebase/auth";
-import MagicCardTheme from "../../shared/style/magicCardTheme";
+import { resetUserPassword } from "@/lib/firebase/auth";
+import MagicCardTheme from "@/components/shared/style/magicCardTheme";
 import Section from "@/components/shared/style/section";
-import SignInWithGoogle from "../buttons/signInWithGoogle";
 import Heading from "@/components/shared/style/heading";
-import ForgotPasswordButton from "../buttons/forgotPasswordButton";
 
 // Zod schema
 const logInSchema = z.object({
   email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 // Infer TypeScript types from schema
 type LogInFormValues = z.infer<typeof logInSchema>;
 
 export default function LogInForm() {
-  const router = useRouter();
+  //   const router = useRouter();
 
   // Initialize react-hook-form with zodResolver
   const {
@@ -41,21 +37,21 @@ export default function LogInForm() {
   });
 
   const onSubmit = async (data: LogInFormValues) => {
-    await signInUser(data.email, data.password, router);
+    resetUserPassword(data.email);
     reset();
   };
 
   return (
     <Section type="outer">
       <motion.div
-        initial={{ opacity: 0.5, x: "-100%" }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0.5, y: "-100%" }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="flex justify-center items-center w-full h-full"
       >
-        <MagicCardTheme className="w-full max-w-sm p-6 rounded-2xl space-y-4">
+        <MagicCardTheme className="w-full max-w-sm p-6 rounded-2xl">
           <Heading size="sm" className="mb-6">
-            Log In
+            Enter your email
           </Heading>
 
           <CardContent className="space-y-4">
@@ -69,36 +65,12 @@ export default function LogInForm() {
                 )}
               </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
               {/* Submit */}
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Logging in..." : "Log In"}
+                {isSubmitting ? "Submitting" : "Submit"}
               </Button>
             </form>
-
-            <SignInWithGoogle className="w-full" />
           </CardContent>
-
-          <CardFooter className="flex flex-col gap-4 my-4">
-            <ForgotPasswordButton />
-            <Button variant="link" className="w-full h-0">
-              <Link href="/signup">Don&apos;t have an account?</Link>
-            </Button>
-          </CardFooter>
         </MagicCardTheme>
       </motion.div>
     </Section>

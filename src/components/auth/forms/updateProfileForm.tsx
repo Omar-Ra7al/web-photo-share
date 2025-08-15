@@ -5,7 +5,6 @@ import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,16 +15,17 @@ import { useAuthStore } from "@/lib/store/authStore";
 import MagicCardTheme from "../../shared/style/magicCardTheme";
 import Section from "@/components/shared/style/section";
 import Heading from "@/components/shared/style/heading";
+import ForgotPasswordButton from "../buttons/forgotPasswordButton";
 // Zod schema
 const updateProfileSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  // email: z
-  //   .string()
-  //   .optional()
-  //   .refine((val) => !val || z.string().email().safeParse(val).success, {
-  //     message: "Invalid email",
-  //   }),
+  email: z
+    .string()
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: "Invalid email",
+    }),
   // password: z
   //   .string()
   //   .optional()
@@ -38,8 +38,6 @@ const updateProfileSchema = z.object({
 type LogInFormValues = z.infer<typeof updateProfileSchema>;
 
 export default function UpdateProfile() {
-  const router = useRouter();
-
   const getUser = useAuthStore((state) => state.getUser);
   const user = useAuthStore((state) => state.user);
   // Initialize react-hook-form with zodResolver
@@ -55,9 +53,8 @@ export default function UpdateProfile() {
 
   const onSubmit = async (data: LogInFormValues) => {
     const userUpdatedData = {
-      displayName: `${data.firstName || user?.firstName} ${
-        data.lastName || user?.lastName
-      }`,
+      displayName: `${data.firstName || null} ${data.lastName || null}`,
+      email: data.email || null,
     };
 
     await updateUserDocProfile(data);
@@ -109,16 +106,15 @@ export default function UpdateProfile() {
                 </div>
               </div>
 
-              {/*
-          // Email and Password
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register("email")} />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
-            )}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" {...register("email")} />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
+              </div>
 
+              {/*
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" {...register("password")} />
@@ -126,7 +122,9 @@ export default function UpdateProfile() {
               <p className="text-red-500 text-sm">{errors.password.message}</p>
             )}
           </div>
-          */}
+            */}
+
+              <ForgotPasswordButton />
 
               {/* Submit */}
               <Button type="submit" disabled={isSubmitting} className="w-full">

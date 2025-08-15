@@ -6,7 +6,7 @@ export const showError = (
   router?: AppRouterInstance | null,
   path?: string
 ) => {
-  toast.error(message);
+  toast.error(message, { className: "!bg-red-500 text-white" });
   if (router) {
     setTimeout(() => {
       router.push(path || "/");

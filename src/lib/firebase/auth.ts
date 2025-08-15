@@ -1,4 +1,5 @@
 import { auth, db } from "./config";
+import { doc, deleteDoc } from "firebase/firestore";
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -11,14 +12,16 @@ import {
   reauthenticateWithPopup,
   updateProfile,
   UserProfile,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  verifyBeforeUpdateEmail,
 } from "firebase/auth";
-import { doc, deleteDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 import { createUserDocProfile } from "./fireStore";
-
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { showError, showSuccess } from "@/utils/notifications";
 import { promptPassword } from "@/components/shared/style/promptPassword";
+import { showError, showSuccess } from "@/utils/notifications";
+
 // Sign Up with email and password
 export const signUpUser = async (
   email: string,
@@ -96,8 +99,15 @@ export const signInUser = async (
   await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed up
-      showSuccess("Logged in successfully!", router, "/");
-      return userCredential.user;
+      if (userCredential.user.emailVerified === false) {
+        // Store in Firestore
+        showError("Please verify your email first.");
+        sendUserEmailVerification();
+      } else {
+        console.log("User signed in:", userCredential.user);
+        showSuccess("Logged in successfully!", router, "/");
+        return userCredential.user;
+      }
     })
     .catch((error) => {
       showError("Sign In failed. Please check your credentials.");
@@ -122,18 +132,6 @@ export const signOutUser = async (
   }
 };
 
-export const updateUserProfile = async (data: Partial<UserProfile>) => {
-  const user = auth.currentUser;
-  if (!user) {
-    showError("User not found.");
-  } else {
-    // Update profile (displayName, photoURL, etc.)
-    await updateProfile(user, { ...data });
-    const updatedFields = Object.keys(data).join(", ");
-    showSuccess(`Updated successfully! Updated: ${updatedFields}`);
-  }
-};
-
 // Reauthenticate user before deleting account
 export const reauthenticateUser = async () => {
   const user = auth.currentUser;
@@ -153,6 +151,57 @@ export const reauthenticateUser = async () => {
       throw new Error(`Unsupported provider: ${providerId}`);
     }
     console.log("Re-authentication successful.");
+  }
+};
+
+// Update user profile
+export const updateUserProfile = async (data: Partial<UserProfile>) => {
+  const user = auth.currentUser;
+  if (user) {
+    // Update profile (displayName, photoURL, etc.)
+    await updateProfile(user, { ...data });
+    // const updatedFields = Object.keys(data).join(", ");
+    // showSuccess(`Updated successfully! Updated: ${updatedFields}`);
+    if (data.email && typeof data.email === "string") {
+      // Update email
+      await reauthenticateUser();
+      await verifyBeforeUpdateEmail(user, data.email);
+      showSuccess("Email updated successfully!");
+    }
+  } else {
+    showError("User not found.");
+  }
+};
+
+// verify user email
+export const sendUserEmailVerification = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    await sendEmailVerification(user);
+    showSuccess("Verification email sent! Please check your inbox.");
+  } else {
+    showError("User not found.");
+  }
+};
+
+// Reset user password
+export const resetUserPassword = async (email: string) => {
+  if (!email) {
+    showError("Please enter your email address.");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showSuccess("Password reset email sent! Please check your inbox.");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Password reset error:", error.message);
+      showError(error.message);
+    } else {
+      console.error("Unexpected error:", error);
+      showError("Something went wrong. Please try again.");
+    }
   }
 };
 
