@@ -315,4 +315,16 @@ Because interface can’t do primitive unions or aliases — only object shapes.
 - **Objects? → `interface`**
 - **Anything else (unions, primitives, combos)? → `type`**
 
-## 5- 
+## 5- Creating Utils dir
+
+### Why and how to use it
+
+```
+Utils is so important and useful but why to split it into another folder ?
+
+1. It is a good practice to keep your code clean and organized.
+2. To reuse the same utils in different parts of your codebase.
+
+```
+`U will find me used it in this project like natofications status in auth`
+`The proplem statement founded when i find my self reapet this more and more i started by spreated it into one file and i used it immeditly in auth functions and that help me a lot to handle the auth status in one place.`

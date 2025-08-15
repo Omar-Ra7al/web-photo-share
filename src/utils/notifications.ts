@@ -3,7 +3,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 
 export const showError = (
   message: string,
-  router?: AppRouterInstance,
+  router?: AppRouterInstance | null,
   path?: string
 ) => {
   toast.error(message);
@@ -25,8 +25,4 @@ export const showSuccess = (
       router.push(path || "/");
     }, 1500);
   }
-};
-
-export const promptUser = (password: string) => {
-  return prompt("Enter your password:", password);
 };

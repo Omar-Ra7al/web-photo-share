@@ -6,7 +6,6 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import MagicCardTheme from "@/components/shared/style/magicCardTheme";
 import Section from "@/components/shared/style/section";
 
@@ -48,27 +47,13 @@ export default function SignUpForm() {
   });
 
   const onSubmit = async (data: SignUpFormValues) => {
-    try {
-      await signUpUser(
-        data.email,
-        data.password,
-        data.firstName,
-        data.lastName
-      );
-      toast.success("Account created successfully!");
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
-    } catch (error) {
-      toast.error("Sign Up failed. Please check your credentials.", {
-        className: "!bg-red-500 text-white",
-      });
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
+    await signUpUser(
+      data.email,
+      data.password,
+      data.firstName,
+      data.lastName,
+      router
+    );
     reset();
   };
 

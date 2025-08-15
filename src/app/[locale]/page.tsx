@@ -1,9 +1,4 @@
 import Hero from "@/components/pages/home/hero";
-import {
-  ScrollVelocityContainer,
-  ScrollVelocityRow,
-} from "@/components/magicui/scroll-based-velocity";
-import Section from "@/components/shared/style/section";
 import { Gallery } from "@/components/pages/home/gallery";
 
 export default function Home() {

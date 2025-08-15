@@ -18,7 +18,7 @@ import { createUserDocProfile } from "./fireStore";
 
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { showError, showSuccess } from "@/utils/notifications";
-
+import { promptPassword } from "@/components/shared/style/promptPassword";
 // Sign Up with email and password
 export const signUpUser = async (
   email: string,
@@ -48,8 +48,10 @@ export const signUpUser = async (
       email: user.email!,
       role: "user",
     });
+
     // Sign out the user after sign up
-    await signOutUser();
+    await signOutUser(false);
+    console.log("Navigate to login page", router);
     showSuccess("Signed up successfully! Please log in.", router, "/login");
     return user;
   } catch (error: unknown) {
@@ -107,13 +109,16 @@ export const signInUser = async (
 };
 
 // Sign out user
-export const signOutUser = async (router?: AppRouterInstance) => {
+export const signOutUser = async (
+  showNotification = true,
+  router?: AppRouterInstance
+) => {
   try {
     await signOut(auth);
-    showSuccess("Logged out successfully!", router, "/");
+    if (showNotification) showSuccess("Logged out successfully!", router, "/");
   } catch (error) {
-    showError("Sign Out failed.");
-    throw error;
+    if (showNotification) showError("Sign Out failed.");
+    console.error("Unexpected error:", error);
   }
 };
 
@@ -137,7 +142,7 @@ export const reauthenticateUser = async () => {
     if (!providerId) throw new Error("No provider data found.");
 
     if (providerId === "password") {
-      const password = prompt("Enter your password:");
+      const password = await promptPassword();
       if (!password) throw new Error("Password is required.");
       const credential = EmailAuthProvider.credential(user.email!, password);
       await reauthenticateWithCredential(user, credential);
