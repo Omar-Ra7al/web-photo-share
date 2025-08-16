@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,12 +9,14 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { updateUserProfile } from "@/lib/firebase/auth";
-import { updateUserDocProfile } from "@/lib/firebase/fireStore";
 import { useAuthStore } from "@/lib/store/authStore";
-import MagicCardTheme from "../../shared/style/magicCardTheme";
+import MagicCardTheme from "@/components/shared/style/magicCardTheme";
 import Section from "@/components/shared/style/section";
 import Heading from "@/components/shared/style/heading";
-import ForgotPasswordButton from "../buttons/forgotPasswordButton";
+import ForgotPasswordButton from "@/components/auth/buttons/forgotPasswordButton";
+import { showError } from "@/utils/notifications";
+import { Link } from "@/i18n/navigation";
+
 // Zod schema
 const updateProfileSchema = z.object({
   firstName: z.string().optional(),
@@ -26,12 +27,12 @@ const updateProfileSchema = z.object({
     .refine((val) => !val || z.string().email().safeParse(val).success, {
       message: "Invalid email",
     }),
-  // password: z
-  //   .string()
-  //   .optional()
-  //   .refine((val) => !val || val.length >= 6, {
-  //     message: "Password must be at least 6 characters",
-  //   }),
+  password: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length >= 6, {
+      message: "Password must be at least 6 characters",
+    }),
 });
 
 // Infer TypeScript types from schema
@@ -39,7 +40,11 @@ type LogInFormValues = z.infer<typeof updateProfileSchema>;
 
 export default function UpdateProfile() {
   const getUser = useAuthStore((state) => state.getUser);
+  const setUser = useAuthStore((state) => state.setUser);
   const user = useAuthStore((state) => state.user);
+  const isGoogleProvider =
+    user?.emailProvider?.includes("google.com") &&
+    user?.emailProvider?.length === 1;
   // Initialize react-hook-form with zodResolver
   const {
     register, // Connect inputs to form
@@ -52,22 +57,27 @@ export default function UpdateProfile() {
   });
 
   const onSubmit = async (data: LogInFormValues) => {
-    const userUpdatedData = {
-      displayName: `${data.firstName || null} ${data.lastName || null}`,
-      email: data.email || null,
-    };
+    // await updateUserDocProfile(data);
+    const isEmpty = Object.values(data).every((value) => value === "");
+    if (isEmpty) {
+      showError("Please fill in at least one field.");
+      return;
+    }
+    await updateUserProfile(data).then(() => {
+      if (user) {
+        setUser({ ...user, ...data });
+      }
+    });
 
-    await updateUserDocProfile(data);
-
-    await updateUserProfile(userUpdatedData);
     // Refresh user data in store to apply changes immediately
     getUser();
-
     reset();
   };
-
   return (
-    <Section type="outer" className="flex items-center justify-center">
+    <Section type="outer">
+      <Heading size="md" className="mb-6">
+        Welcome <span className="active">{user?.firstName || "User"}</span>
+      </Heading>
       <motion.div
         initial={{ opacity: 0.5, y: "-100%" }}
         animate={{ opacity: 1, y: 0 }}
@@ -106,26 +116,46 @@ export default function UpdateProfile() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" {...register("email")} />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
-                )}
-              </div>
-
-              {/*
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register("password")} />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
-            )}
-          </div>
-            */}
-
-              <ForgotPasswordButton />
-
+              {/* Email and Password checking if email provider is email or google */}
+              {isGoogleProvider ? (
+                <p className="text-muted-foreground text-sm animate-pulse">
+                  Since you are logging in with Google provider only, you cannot
+                  change your email or password.
+                </p>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" {...register("email")} />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      {...register("password")}
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+                  <ForgotPasswordButton />
+                </>
+              )}
+              {isGoogleProvider && (
+                <Button variant="link" className="w-full h-0">
+                  <Link href="/link-google-account">
+                    Link Google Account to Email Account
+                  </Link>
+                </Button>
+              )}
               {/* Submit */}
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? "Updating Profile" : "Update Profile"}

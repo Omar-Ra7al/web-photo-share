@@ -172,3 +172,6 @@
   margin: 0 auto;
   padding: 60px auto;
 }
+.active {
+  @apply font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent;
+}

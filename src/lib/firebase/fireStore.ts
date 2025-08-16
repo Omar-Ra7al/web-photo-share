@@ -29,6 +29,7 @@ export const updateUserDocProfile = async (
 ) => {
   const user = auth.currentUser;
   if (user) {
+    console.log(profileData);
     const userRef = doc(db, "users", user.uid);
     await updateDoc(userRef, {
       ...profileData,

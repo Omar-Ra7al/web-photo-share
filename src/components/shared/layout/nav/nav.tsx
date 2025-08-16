@@ -6,10 +6,10 @@ import AuthActionButton from "./profileAction";
 
 const Nav = () => {
   return (
-    <nav className="fixed top-0 left-0  w-full h-[100px] z-50 dark:bg-gray-800/20 bg-white/20">
-      <div className="outer-section-container w-full h-full grid grid-cols-3 justify-between items-center">
+    <nav className="fixed top-0 left-0  w-full h-[100px] z-50 dark:bg-slate-800/20 bg-slate-300/20">
+      <div className="outer-section-container w-full h-full grid grid-cols-2  lg:grid-cols-3 justify-between items-center">
         <Logo />
-        <div className="justify-self-center">
+        <div className="justify-self-end lg:justify-self-center">
           <NavLinks />
         </div>
 

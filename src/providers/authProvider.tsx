@@ -14,22 +14,29 @@ export default function AuthProvider({
   children: React.ReactNode;
 }) {
   const setUser = useAuthStore((state) => state.setUser);
+  const getUser = useAuthStore((state) => state.getUser);
   const clearUser = useAuthStore((state) => state.clearUser);
   const setLoading = useAuthStore((state) => state.setLoading);
 
+  // Subscribe to auth state changes
   useEffect(() => {
     // Initialize Firebase Auth and listen for auth state changes
     const auth = getAuth(app);
 
-    // Subscribe to auth state changes
+    // Check if the user is already signed in
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        console.log("AuthProvider initialized", "user signed in", firebaseUser);
-
         // Set the user in the Zustand store and update loading state
+        console.log("User signed in", "usrer: ", firebaseUser);
         const userProfile = await getUserDocData();
         if (userProfile) {
-          setUser(userProfile);
+          setUser({
+            ...userProfile,
+            emailProvider: firebaseUser.providerData.map(
+              (provider) => provider.providerId
+            ),
+          });
+          getUser();
           setLoading(false);
         }
       } else {
@@ -38,10 +45,9 @@ export default function AuthProvider({
           "usrer: ",
           firebaseUser
         );
-
+        setLoading(false);
         // Clear the user in the Zustand store and update loading state
         clearUser();
-        setLoading(false);
       }
     });
 

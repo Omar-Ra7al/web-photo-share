@@ -15,9 +15,11 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   verifyBeforeUpdateEmail,
+  updatePassword,
+  linkWithCredential,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { createUserDocProfile } from "./fireStore";
+import { createUserDocProfile, updateUserDocProfile } from "./fireStore";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { promptPassword } from "@/components/shared/style/promptPassword";
 import { showError, showSuccess } from "@/utils/notifications";
@@ -90,6 +92,29 @@ export const signInWithGoogle = async (router?: AppRouterInstance) => {
   }
 };
 
+export const linkGoogleUserToEmail = async (password: string) => {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await reauthenticateUser();
+
+    const credential = EmailAuthProvider.credential(user.email!, password);
+
+    await linkWithCredential(user, credential);
+
+    await sendEmailVerification(user);
+
+    showSuccess("Email/Password linked successfully!");
+  } catch (error) {
+    showError("Link failed. Please check your credentials.");
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+};
+
 // Sign in with email and password
 export const signInUser = async (
   email: string,
@@ -158,16 +183,72 @@ export const reauthenticateUser = async () => {
 export const updateUserProfile = async (data: Partial<UserProfile>) => {
   const user = auth.currentUser;
   if (user) {
-    // Update profile (displayName, photoURL, etc.)
-    await updateProfile(user, { ...data });
-    // const updatedFields = Object.keys(data).join(", ");
-    // showSuccess(`Updated successfully! Updated: ${updatedFields}`);
+    const providerId = user.providerData
+      .map((provider) => provider.providerId)
+      .includes("password");
+
+    let updatedFields: Partial<UserProfile> = {};
+    const updatedFieldsKeys = [];
+    for (const key in data) {
+      if (data[key] !== "") {
+        updatedFieldsKeys.push(key);
+        updatedFields = {
+          displayName: `${
+            data.firstName ? data.firstName : user.displayName?.split(" ")[0]
+          } ${data.lastName ? data.lastName : user.displayName?.split(" ")[1]}`,
+        };
+      }
+    }
+
+    // Update user profile
+    await updateProfile(user, updatedFields);
+
+    // Update user document
+
+    // Update first name
+    if (data.firstName && typeof data.firstName === "string") {
+      // Update first name
+      await updateUserDocProfile({
+        firstName: data.firstName,
+      });
+    }
+
+    // Update last name
+    if (data.lastName && typeof data.lastName === "string") {
+      // Update last name
+      await updateUserDocProfile({
+        lastName: data.lastName,
+      });
+    }
+
+    // Update email
     if (data.email && typeof data.email === "string") {
       // Update email
-      await reauthenticateUser();
-      await verifyBeforeUpdateEmail(user, data.email);
-      showSuccess("Email updated successfully!");
+      if (providerId) {
+        await reauthenticateUser();
+        await verifyBeforeUpdateEmail(user, data.email);
+        await updateUserDocProfile({
+          email: data.email,
+        });
+        showSuccess("Please check it email box to verify your new email.");
+      } else {
+        showError("You are not logged in with a password provider.");
+      }
     }
+
+    // Update password
+    if (data.password && typeof data.password === "string") {
+      if (providerId) {
+        await reauthenticateUser();
+        await updatePassword(user!, data.password);
+      } else {
+        showError("You are not logged in with a password provider.");
+      }
+    }
+
+    showSuccess(
+      `Profile updated successfully (${updatedFieldsKeys.join(", ")}).`
+    );
   } else {
     showError("User not found.");
   }

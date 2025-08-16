@@ -9,7 +9,7 @@ const AuthActionButton = () => {
   const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
-    return <div className="h-full w-[60px]"></div>;
+    return <div className="h-full w-[60px]">loading..</div>;
   }
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
