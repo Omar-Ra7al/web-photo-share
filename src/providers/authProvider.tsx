@@ -1,12 +1,15 @@
 "use client";
+
+// React
 import { useEffect } from "react";
-// Firebase imports
+
+// Firebase
 import app from "@/lib/firebase/config";
-import { onAuthStateChanged, getAuth } from "firebase/auth";
-// Zustand store for auth state
-import { useAuthStore } from "@/lib/store/authStore";
-// Function to get user document data
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getUserDocData } from "@/lib/firebase/fireStore";
+
+// State management
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function AuthProvider({
   children,
@@ -29,6 +32,7 @@ export default function AuthProvider({
         // Set the user in the Zustand store and update loading state
         console.log("User signed in", "usrer: ", firebaseUser);
         const userProfile = await getUserDocData();
+
         if (userProfile) {
           setUser({
             ...userProfile,
@@ -36,6 +40,7 @@ export default function AuthProvider({
               (provider) => provider.providerId
             ),
           });
+
           getUser();
           setLoading(false);
         }
@@ -53,7 +58,7 @@ export default function AuthProvider({
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [setUser, clearUser, setLoading]);
+  }, [setUser, clearUser, setLoading, getUser]);
 
   return <>{children}</>;
 }

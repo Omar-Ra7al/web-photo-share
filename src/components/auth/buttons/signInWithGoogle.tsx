@@ -1,7 +1,6 @@
-"use client";
-import { signInWithGoogle } from "@/lib/firebase/auth";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation"; // ✅ Correct import
+import { signInWithGoogle } from "@/lib/firebase/auth";
 
 const SignInWithGoogle = ({ className }: { className?: string }) => {
   const router = useRouter();

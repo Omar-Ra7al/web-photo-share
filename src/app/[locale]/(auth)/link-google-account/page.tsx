@@ -1,21 +1,28 @@
 "use client";
-import { motion } from "motion/react";
+// 📦 External libraries
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+// 🎨 UI components (shadcn/ui)
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+// 🧩 Shared styled components
+import MagicCardTheme from "@/components/shared/sections/magicCardTheme";
+import Section from "@/components/shared/sections/section";
+import Heading from "@/components/shared/typography/heading";
+
+// 🔐 Auth components & store
+import ForgotPasswordButton from "@/components/auth/buttons/forgotPasswordButton";
 import { linkGoogleUserToEmail } from "@/lib/firebase/auth";
 import { useAuthStore } from "@/lib/store/authStore";
-import MagicCardTheme from "@/components/shared/style/magicCardTheme";
-import Section from "@/components/shared/style/section";
-import Heading from "@/components/shared/style/heading";
-import ForgotPasswordButton from "@/components/auth/buttons/forgotPasswordButton";
+
+// ⚙️ Utils
 import { showError } from "@/utils/notifications";
-import { Link } from "@/i18n/navigation";
+import AnimatedSection from "@/components/shared/sections/animatedSection";
 
 // Zod schema
 const updateProfileSchema = z.object({
@@ -43,29 +50,33 @@ export default function UpdateProfile() {
 
   const onSubmit = async (data: LogInFormValues) => {
     const isEmpty = Object.values(data).every((value) => value === "");
+
     if (isEmpty) {
       showError("Please fill in at least one field.");
       return;
     }
+
     await linkGoogleUserToEmail(data.password!);
+
     reset();
   };
 
   return (
     <Section type="outer">
-      <motion.div
-        initial={{ opacity: 0.5, y: "-100%" }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      <AnimatedSection
+        fromY="-100%"
         className="flex justify-center items-center w-full h-full"
       >
         <MagicCardTheme className="w-full max-w-sm rounded-2xl p-6">
+          {/* Header */}
           <Heading size="sm" className="mb-6">
             Link Google Account
           </Heading>
 
+          {/* Form */}
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Password input */}
               <div className="space-y-4">
                 <Label
                   htmlFor="password"
@@ -74,17 +85,20 @@ export default function UpdateProfile() {
                   Set password for the curent email
                   <span className="active">{user?.email}</span>
                 </Label>
+
                 <Input
                   id="password"
                   type="password"
                   {...register("password")}
                 />
+
                 {errors.password && (
                   <p className="text-red-500 text-sm">
                     {errors.password.message}
                   </p>
                 )}
               </div>
+              {/* Forgot password */}
               <ForgotPasswordButton />
 
               {/* Submit */}
@@ -94,7 +108,7 @@ export default function UpdateProfile() {
             </form>
           </CardContent>
         </MagicCardTheme>
-      </motion.div>
+      </AnimatedSection>
     </Section>
   );
 }

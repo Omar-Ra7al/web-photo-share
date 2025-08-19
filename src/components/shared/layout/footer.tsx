@@ -2,7 +2,7 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 // Components
-import Heading from "@/components/shared/style/heading";
+import Heading from "@/components/shared/typography/heading";
 import logo from "@/public/img/shared/logo.svg";
 // Icons
 import faceBook from "@/public/icons/social/faceBook.svg";

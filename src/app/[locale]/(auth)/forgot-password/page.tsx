@@ -10,9 +10,9 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { resetUserPassword } from "@/lib/firebase/auth";
-import MagicCardTheme from "@/components/shared/style/magicCardTheme";
-import Section from "@/components/shared/style/section";
-import Heading from "@/components/shared/style/heading";
+import MagicCardTheme from "@/components/shared/sections/magicCardTheme";
+import Section from "@/components/shared/sections/section";
+import Heading from "@/components/shared/typography/heading";
 
 // Zod schema
 const logInSchema = z.object({

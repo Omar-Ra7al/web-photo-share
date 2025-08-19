@@ -1,21 +1,30 @@
 "use client";
-import { Link } from "@/i18n/navigation";
-import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
-import { CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
+// External libraries
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signInUser } from "@/lib/firebase/auth";
-import MagicCardTheme from "../../shared/style/magicCardTheme";
-import Section from "@/components/shared/style/section";
-import SignInWithGoogle from "../buttons/signInWithGoogle";
-import Heading from "@/components/shared/style/heading";
+import { useRouter } from "next/navigation";
+
+// UI components (shadcn/ui)
+import { Button } from "@/components/ui/button";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Shared styled components
+import AnimatedSection from "@/components/shared/sections/animatedSection";
+import MagicCardTheme from "@/components/shared/sections/magicCardTheme";
+import Section from "@/components/shared/sections/section";
+import Heading from "@/components/shared/typography/heading";
+
+// Auth components & logic
 import ForgotPasswordButton from "../buttons/forgotPasswordButton";
+import SignInWithGoogle from "../buttons/signInWithGoogle";
+import { signInUser } from "@/lib/firebase/auth";
+
+// Navigation
+import { Link } from "@/i18n/navigation";
 
 // Zod schema
 const logInSchema = z.object({
@@ -42,22 +51,23 @@ export default function LogInForm() {
 
   const onSubmit = async (data: LogInFormValues) => {
     await signInUser(data.email, data.password, router);
+
     reset();
   };
 
   return (
     <Section type="outer">
-      <motion.div
-        initial={{ opacity: 0.5, x: "-100%" }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
+      <AnimatedSection
+        fromX="-100%"
         className="flex justify-center items-center w-full h-full"
       >
         <MagicCardTheme className="w-full max-w-sm p-6 rounded-2xl space-y-4">
+          {/* Header */}
           <Heading size="sm" className="mb-6">
             Log In
           </Heading>
 
+          {/* Form */}
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email */}
@@ -93,6 +103,7 @@ export default function LogInForm() {
             <SignInWithGoogle className="w-full" />
           </CardContent>
 
+          {/* Footer */}
           <CardFooter className="flex flex-col gap-4 my-4">
             <ForgotPasswordButton />
             <Button variant="link" className="w-full h-0">
@@ -100,7 +111,7 @@ export default function LogInForm() {
             </Button>
           </CardFooter>
         </MagicCardTheme>
-      </motion.div>
+      </AnimatedSection>
     </Section>
   );
 }

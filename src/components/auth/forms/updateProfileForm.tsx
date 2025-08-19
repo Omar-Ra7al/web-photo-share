@@ -1,21 +1,30 @@
 "use client";
-import { motion } from "motion/react";
-import { CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
+// External libraries
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+
+// UI components (shadcn/ui)
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Shared styled components
+import Heading from "@/components/shared/typography/heading";
+import MagicCardTheme from "@/components/shared/sections/magicCardTheme";
+import Section from "@/components/shared/sections/section";
+
+// Auth components & store
+import ForgotPasswordButton from "@/components/auth/buttons/forgotPasswordButton";
 import { updateUserProfile } from "@/lib/firebase/auth";
 import { useAuthStore } from "@/lib/store/authStore";
-import MagicCardTheme from "@/components/shared/style/magicCardTheme";
-import Section from "@/components/shared/style/section";
-import Heading from "@/components/shared/style/heading";
-import ForgotPasswordButton from "@/components/auth/buttons/forgotPasswordButton";
-import { showError } from "@/utils/notifications";
+
+// Navigation & utils
 import { Link } from "@/i18n/navigation";
+import { showError } from "@/utils/notifications";
+import AnimatedSection from "@/components/shared/sections/animatedSection";
 
 // Zod schema
 const updateProfileSchema = z.object({
@@ -35,42 +44,36 @@ const updateProfileSchema = z.object({
     }),
 });
 
-// Infer TypeScript types from schema
 type LogInFormValues = z.infer<typeof updateProfileSchema>;
 
 export default function UpdateProfile() {
-  const getUser = useAuthStore((state) => state.getUser);
   const setUser = useAuthStore((state) => state.setUser);
   const user = useAuthStore((state) => state.user);
-  const isGoogleProvider =
-    user?.emailProvider?.includes("google.com") &&
-    user?.emailProvider?.length === 1;
-  // Initialize react-hook-form with zodResolver
+  const isGoogleProvider = useAuthStore((state) => state.isGoogleProvider);
+
   const {
-    register, // Connect inputs to form
-    handleSubmit, // Form submit handler
-    reset, // Reset form fields
-    formState: { errors, isSubmitting }, // Validation & state & errors
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<LogInFormValues>({
-    //Types
-    resolver: zodResolver(updateProfileSchema), // Give useForm the resolver from zod
+    resolver: zodResolver(updateProfileSchema),
   });
 
   const onSubmit = async (data: LogInFormValues) => {
-    // await updateUserDocProfile(data);
     const isEmpty = Object.values(data).every((value) => value === "");
+
     if (isEmpty) {
       showError("Please fill in at least one field.");
       return;
     }
+
     await updateUserProfile(data).then(() => {
       if (user) {
         setUser({ ...user, ...data });
       }
     });
 
-    // Refresh user data in store to apply changes immediately
-    getUser();
     reset();
   };
   return (
@@ -78,10 +81,8 @@ export default function UpdateProfile() {
       <Heading size="md" className="mb-6">
         Welcome <span className="active">{user?.firstName || "User"}</span>
       </Heading>
-      <motion.div
-        initial={{ opacity: 0.5, y: "-100%" }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      <AnimatedSection
+        fromY="-100%"
         className="flex justify-center items-center w-full h-full"
       >
         <MagicCardTheme className="w-full max-w-sm rounded-2xl p-6">
@@ -134,7 +135,7 @@ export default function UpdateProfile() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">New Password</Label>
                     <Input
                       id="password"
                       type="password"
@@ -149,6 +150,7 @@ export default function UpdateProfile() {
                   <ForgotPasswordButton />
                 </>
               )}
+
               {isGoogleProvider && (
                 <Button variant="link" className="w-full h-0">
                   <Link href="/link-google-account">
@@ -163,7 +165,7 @@ export default function UpdateProfile() {
             </form>
           </CardContent>
         </MagicCardTheme>
-      </motion.div>
+      </AnimatedSection>
     </Section>
   );
 }

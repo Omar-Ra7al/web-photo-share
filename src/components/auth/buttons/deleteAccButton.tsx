@@ -1,7 +1,6 @@
-"use clien";
-import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
-import { deleteUserAccount } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
+import { deleteUserAccount } from "@/lib/firebase/auth";
+import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
 
 const DeleteAccButton = () => {
   const router = useRouter();

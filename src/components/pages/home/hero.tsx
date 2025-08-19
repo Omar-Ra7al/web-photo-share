@@ -1,13 +1,18 @@
 "use client";
 
+// React & core libraries
 import React from "react";
 import { motion } from "framer-motion";
-import Section from "@/components/shared/style/section";
-import { MorphingText } from "@/components/magicui/morphing-text";
-import AnimatedBackground from "@/components/shared/style/animatedBg";
-import { TextAnimate } from "@/components/magicui/text-animate";
-import RippleButton from "@/components/magicui/ripple-button";
 import { ChevronRightIcon } from "lucide-react";
+
+// MagicUI components
+import { MorphingText } from "@/components/magicui/morphing-text";
+import RippleButton from "@/components/magicui/ripple-button";
+import { TextAnimate } from "@/components/magicui/text-animate";
+
+// Shared components & styles
+import Section from "@/components/shared/sections/section";
+import AnimatedBackground from "@/components/shared/style/animatedBg";
 
 const sentence = "Share Your Moments With the World";
 const subtitle =

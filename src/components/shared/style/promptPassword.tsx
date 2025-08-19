@@ -65,7 +65,7 @@ function PasswordPrompt({
  * Works like native prompt() but shows a styled modal.
  */
 export function promptPassword(
-  message = "Enter your password:",
+  message = "Enter your current password:",
   defaultValue = ""
 ): Promise<string | null> {
   return new Promise((resolve) => {

@@ -6,7 +6,6 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen gap-15">
       <Hero />
       <Gallery />
-      <div className="h-[1000px]"></div>
     </div>
   );
 }
