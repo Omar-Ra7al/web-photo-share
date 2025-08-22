@@ -175,3 +175,69 @@
 .active {
   @apply font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent;
 }
+
+select {
+  appearance: base-select;
+  /* style the 'button' */
+  background-color: transparent;
+  backdrop-filter: blur(10px);
+
+  &::picker(select) {
+    appearance: base-select;
+    /* style the 'listbox' */
+    background-color: transparent;
+    backdrop-filter: blur(15px);
+    padding: 5px;
+    border: none;
+    border-radius: 10px;
+    color: var(--primary);
+    box-shadow: var(--accent) 0px 0px 15px;
+  }
+
+  &::picker-icon {
+    /* style the 'button' icon */
+    font-size: 12px;
+    transition: all 0.3s ease-in-out;
+    color: var(--primary);
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  &:open&::picker-icon {
+    /* style the 'button' icon */
+    transform: rotate(180deg);
+  }
+
+  /* &:not(:open) {
+    &::picker(select) {
+    }
+  }
+
+  &:open {
+    &::picker(select) {
+    }
+  } */
+
+  & option {
+    /* style the options */
+    transition: all 0.3s ease-in-out;
+    background-color: transparent;
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 5px;
+
+    &:hover {
+      background-color: var(--secondary);
+      color: var(--primary);
+    }
+
+    &::checkmark {
+      color: var(--primary);
+    }
+
+    &:checked {
+      background-color: var(--secondary);
+      border-radius: 10px;
+      padding: 5px;
+    }
+  }
+}
