@@ -7,7 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/config";
+import { db, storage } from "@/lib/firebase/config";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { showError, showSuccess } from "@/utils/notifications";
 
 // Config types
 // -------------------------
@@ -49,7 +51,12 @@ type FormField = TextField | ImageField | SelectField;
 export interface FormConfig {
   fields: FormField[];
   fireStorePath?: { collectionName: string; docName: string };
+  fireStoragePath?: string;
   onSubmitForm?: (data: unknown) => void;
+  beforeSubmitForm?: (data: unknown) => void;
+  afterSubmitForm?: (data: unknown) => void;
+  feildsClassName?: string;
+  submitBtnClassName?: string;
 }
 
 interface FormProps {
@@ -60,7 +67,6 @@ export default function FormBuilder({ config }: FormProps) {
   // 1. Build schema from config
   // -------------------------
 
-  console.log(config);
   function buildSchema() {
     const shape: Record<string, z.ZodTypeAny> = {};
 
@@ -187,38 +193,72 @@ export default function FormBuilder({ config }: FormProps) {
   // -------------------------
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
+    if (config.beforeSubmitForm) {
+      config.beforeSubmitForm(data);
+    }
+
     if (config.onSubmitForm) {
       config.onSubmitForm(data);
     }
 
     try {
+      // Urls for uploaded images
+      const photoURLs: string[] = [];
+
+      // Check if there are any images
+      if (
+        data.photos &&
+        Array.isArray(data.photos) &&
+        data.photos.length > 0 &&
+        config.fireStoragePath
+      ) {
+        for (const file of data.photos) {
+          const storageRef = ref(
+            storage,
+            `${config.fireStoragePath}/${file.name}-${Date.now()}`
+          );
+
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          photoURLs.push(url);
+        }
+      }
+
+      // Remove empty fields
+      const filteredData = Object.fromEntries(
+        Object.entries(data).filter(([, value]) => {
+          if (
+            value === "" ||
+            value === null ||
+            value === undefined ||
+            (Array.isArray(value) && value.length === 0) ||
+            (typeof value === "object" &&
+              !Array.isArray(value) &&
+              Object.keys(value).length === 0)
+          ) {
+            return false;
+          }
+          return true;
+        })
+      );
+
+      // Replace photos array with URLs if uploaded
+      if (photoURLs.length > 0) {
+        filteredData.photos = photoURLs;
+      } else {
+        delete filteredData.photos; // Remove empty photos array
+      }
+
+      // Save to Firestore
       if (config.fireStorePath) {
-        const ref = doc(
+        const fireStoreRef = doc(
           db,
           config.fireStorePath.collectionName,
           config.fireStorePath.docName
         );
 
-        // Remove empty fields
-        const filteredData = Object.fromEntries(
-          Object.entries(data).filter(([, value]) => {
-            if (
-              value === "" ||
-              value === null ||
-              value === undefined ||
-              (Array.isArray(value) && value.length === 0) ||
-              (typeof value === "object" &&
-                !Array.isArray(value) &&
-                Object.keys(value).length === 0)
-            ) {
-              return false;
-            }
-            return true;
-          })
-        );
-
         await setDoc(
-          ref,
+          fireStoreRef,
           {
             ...filteredData,
             createdAt: new Date(),
@@ -227,12 +267,16 @@ export default function FormBuilder({ config }: FormProps) {
         );
       }
 
-      alert("✅ Form submitted successfully!");
-      reset();
+      showSuccess("Form submitted successfully!");
       setPreviews({});
+      reset();
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("❌ Failed to submit form. Please try again.");
+      showError("Failed to submit form. Please try again.");
+    }
+
+    if (config.afterSubmitForm) {
+      config.afterSubmitForm(data);
     }
   };
 
@@ -267,7 +311,9 @@ export default function FormBuilder({ config }: FormProps) {
               id={field.name}
               type="text"
               {...register(field.name)}
-              className={`border px-2 py-1 w-full rounded ${field.className} ${
+              className={`border px-2 py-1 w-full rounded ${
+                config.feildsClassName
+              } ${field.className} ${
                 errors[field.name] ? "border-destructive" : ""
               }`}
               placeholder={field.placeholder}
@@ -278,7 +324,9 @@ export default function FormBuilder({ config }: FormProps) {
             <textarea
               id={field.name}
               {...register(field.name)}
-              className={`border px-2 py-1 w-full rounded ${field.className} ${
+              className={`border px-2 py-1 w-full rounded ${
+                config.feildsClassName
+              } ${field.className} ${
                 errors[field.name] ? "border-destructive" : ""
               }`}
               rows={4}
@@ -295,7 +343,7 @@ export default function FormBuilder({ config }: FormProps) {
                 multiple={field.maxCount !== 1}
                 onChange={(e) => handleFilesChange(field, e.target.files)}
                 className={`cursor-pointer border px-2 py-1 w-full rounded
-                  ${field.className}
+                  ${config.feildsClassName} ${field.className}
                   ${errors[field.name] ? "border-destructive" : ""}`}
               />
 
@@ -320,7 +368,9 @@ export default function FormBuilder({ config }: FormProps) {
             <select
               id={field.name}
               {...register(field.name)}
-              className={`border px-2 py-1 w-full rounded ${field.className} ${
+              className={`border px-2 py-1 w-full rounded ${
+                config.feildsClassName
+              } ${field.className} ${
                 errors[field.name] ? "border-destructive" : ""
               }`}
               defaultValue=""
@@ -349,7 +399,7 @@ export default function FormBuilder({ config }: FormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white py-2 rounded"
+        className={`w-full bg-primary border border-secondary text-secondary py-2 rounded cursor-pointer ${config.submitBtnClassName}`}
       >
         {isSubmitting ? "Submitting..." : "Submit"}
       </button>

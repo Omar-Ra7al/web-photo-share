@@ -8,6 +8,7 @@ type AuthState = {
   emailProvider: string[] | null;
   isGoogleProvider: boolean;
   setUser: (user: UserProfileInfo | null) => void;
+  setUserProfile: (profile: Partial<UserProfileInfo>) => void;
   getUser: () => void;
   clearUser: () => void;
   setLoading: (loading: boolean) => void;
@@ -18,6 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   loading: true,
   emailProvider: null,
   isGoogleProvider: false,
+
   setUser: (user) =>
     set({
       user,
@@ -26,10 +28,18 @@ export const useAuthStore = create<AuthState>((set) => ({
         user?.emailProvider?.includes("google.com") &&
         user?.emailProvider?.length === 1,
     }),
+
+  setUserProfile: (phoroURL) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...phoroURL } : state.user,
+    })),
+
   getUser: async () => {
     const user = await getUserDocData();
     set({ user });
   },
+
   clearUser: () => set({ user: null }),
+
   setLoading: (loading) => set({ loading }),
 }));

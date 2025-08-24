@@ -23,6 +23,8 @@ import { createUserDocProfile, updateUserDocProfile } from "./fireStore";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { promptPassword } from "@/components/shared/style/promptPassword";
 import { showError, showSuccess } from "@/utils/notifications";
+import { uploadImageToStorage } from "./storage";
+import { uploadProfilePicture } from "./services/userService";
 
 // Sign Up with email and password
 export const signUpUser = async (
@@ -82,6 +84,7 @@ export const signInWithGoogle = async (router?: AppRouterInstance) => {
       firstName: user.displayName?.split(" ")[0] || "First",
       lastName: user.displayName?.split(" ")[1] || "Last",
       email: user.email || "",
+      photoURL: user.photoURL || "",
       role: "user",
     });
     showSuccess("Logged in successfully!", router, "/");
@@ -244,6 +247,15 @@ export const updateUserProfile = async (data: Partial<UserProfile>) => {
       } else {
         showError("You are not logged in with a password provider.");
       }
+    }
+
+    // Update photo URL
+    if (
+      data.photoURL &&
+      data.photoURL instanceof File &&
+      typeof data.photoURL !== "string"
+    ) {
+      await uploadProfilePicture(data.photoURL);
     }
 
     showSuccess(

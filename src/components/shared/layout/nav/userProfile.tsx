@@ -11,15 +11,28 @@ import {
 import LogOutButton from "@/components/auth/buttons/logOutButton";
 import { Link } from "@/i18n/navigation";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
+import { useAuthStore } from "@/lib/store/authStore";
+import Image from "next/image";
 
 export default function UserProfileMenu() {
+  const user = useAuthStore((state) => state.user);
   return (
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger className="p-2 min-h-[40px] h-full">
             <span className="animate-pulse bg"></span>
-            <UserIcon className="h-5 w-5" />
+            {user?.photoURL ? (
+              <Image
+                src={user?.photoURL as string}
+                width={40}
+                height={40}
+                alt="user"
+                className="rounded-full h-8 w-8"
+              />
+            ) : (
+              <UserIcon />
+            )}
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="min-w-[210px] max-w-[300px] flex flex-col items-center gap-4">

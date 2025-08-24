@@ -1,6 +1,6 @@
 import Hero from "@/components/pages/home/hero";
 import { Gallery } from "@/components/pages/home/gallery";
-import TestFormPage from "../../components/auth/test-form";
+import TestFormPage from "@/components/auth/test-form";
 
 export default function Home() {
   return (

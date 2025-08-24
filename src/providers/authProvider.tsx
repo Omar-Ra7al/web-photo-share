@@ -20,7 +20,6 @@ export default function AuthProvider({
   const getUser = useAuthStore((state) => state.getUser);
   const clearUser = useAuthStore((state) => state.clearUser);
   const setLoading = useAuthStore((state) => state.setLoading);
-
   // Subscribe to auth state changes
   useEffect(() => {
     // Initialize Firebase Auth and listen for auth state changes
@@ -36,14 +35,13 @@ export default function AuthProvider({
         if (userProfile) {
           setUser({
             ...userProfile,
-            emailProvider: firebaseUser.providerData.map(
-              (provider) => provider.providerId
-            ),
           });
 
           getUser();
           setLoading(false);
         }
+
+        setLoading(false);
       } else {
         console.log(
           "User signed out or not authenticated",

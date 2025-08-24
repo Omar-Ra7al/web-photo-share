@@ -5,6 +5,7 @@ export interface UserProfileInfo {
   lastName: string;
   email: string;
   emailProvider: string[] | null;
+  photoURL: string | null | File;
   role: "user" | "admin";
   createdAt: Timestamp;
 }

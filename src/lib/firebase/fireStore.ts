@@ -29,7 +29,6 @@ export const updateUserDocProfile = async (
 ) => {
   const user = auth.currentUser;
   if (user) {
-    console.log(profileData);
     const userRef = doc(db, "users", user.uid);
     await updateDoc(userRef, {
       ...profileData,
@@ -46,8 +45,26 @@ export const getUserDocData = async () => {
     if (userDoc.exists()) {
       return {
         ...userDoc.data(),
+        photoURL:
+          userDoc.data()?.photoURL == ""
+            ? user.photoURL
+            : userDoc.data()?.photoURL,
+        emailProvider: user.providerData.map((provider) => provider.providerId),
       } as UserProfileInfo;
     }
   }
   return null;
+};
+
+export const checkDocExists = async (collection: string, docId: string) => {
+  const docRef = doc(db, collection, docId);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    console.log("Document exists:", docSnap.data());
+    return true;
+  } else {
+    console.log("Document does not exist");
+    return false;
+  }
 };

@@ -326,5 +326,74 @@ Utils is so important and useful but why to split it into another folder ?
 2. To reuse the same utils in different parts of your codebase.
 
 ```
+
 `U will find me used it in this project like natofications status in auth`
 `The proplem statement founded when i find my self reapet this more and more i started by spreated it into one file and i used it immeditly in auth functions and that help me a lot to handle the auth status in one place.`
+
+## 6- Explaining Rules for firebase
+
+```js
+service firebase.storage { //>> thie mean the rules will be for storage
+  match /b/{bucket}/o { // >> this mean u type the rules for all files inside the bucket
+    match /{allPaths=**} { // >> this will mean u type the rules for all nested files
+      // Here we type our rules
+    }
+  }
+}
+
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ⬇️ السماح للجميع بقراءة أي صورة في مجلد "public"
+    match /public/{allImages} {
+      allow read: if true;   // أي حد يقدر يقرأ
+      allow write: if request.auth != null; // بس لازم يكون عامل login عشان يرفع
+    }
+
+    // ⬇️ الصور الخاصة بكل مستخدم
+    match /users/{userId}/{allImages} {
+      allow read: if true; // أي حد يقدر يشوفها (ممكن تغيرها لو عايز تخليها خاصة)
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // ^ بس صاحب الـ uid يقدر يرفع/يمسح/يعدل
+    }
+  }
+}
+```
+
+## 7- Fire storage
+
+### How to use it
+
+- first create the bucket in firebase console
+- then create the rules in firebase
+- and it now ready to use
+
+_We gonna start by adding user profile and see how it gonna go_
+
+```js
+import { storage } from "./firebase"; // Firebase configuration file
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth();
+
+async function uploadProfilePicture(file: File) {
+  // Check if the user is logged in
+  if (!auth.currentUser) throw new Error("User not logged in");
+
+  const uid = auth.currentUser.uid; // Get the current user's UID
+
+  // Create a reference to the user's profile picture path in Storage
+  const storageRef = ref(storage, `users/${uid}/profile.jpg`);
+
+  // Upload the file to Firebase Storage
+  await uploadBytes(storageRef, file);
+
+  // Get the public download URL of the uploaded file
+  const url = await getDownloadURL(storageRef);
+
+  return url; // Return the URL so you can store it in Firestore or display it
+}
+and now we can use it also how to delete it is so easy
+```

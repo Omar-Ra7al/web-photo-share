@@ -51,7 +51,7 @@ export default async function LocaleLayout({
           <Nav />
           <AuthProvider>
             <main
-              className="mt-[100px] py-[120px] space-y-[120px] overflow-hidden dark:!text-cyan-50 !text-cyan-950"
+              className="relative mt-[100px] py-[120px] space-y-[120px] overflow-hidden dark:!text-cyan-50 !text-cyan-950"
               style={{ minHeight: "calc(100vh - 100px)" }}
             >
               {children}

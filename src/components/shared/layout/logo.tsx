@@ -9,7 +9,12 @@ const Logo = () => {
       href={"/"}
       className="w-[60px] h-[60px] flex items-center justify-start"
     >
-      <Image src={logo} alt="Logo" className="w-full h-full object-contain" />
+      <Image
+        src={logo}
+        alt="Logo"
+        priority={true}
+        className="w-full h-full object-contain"
+      />
     </Link>
   );
 };
